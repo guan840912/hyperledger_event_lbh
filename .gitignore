@@ -1,3 +1,5 @@
 .DS_Store
 chaincode_event/.idea 
-client_event/.idea 
+client_event/.idea
+client_event/config.yaml
+binghongli-msp 
