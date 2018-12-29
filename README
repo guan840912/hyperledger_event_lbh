@@ -1,0 +1,25 @@
+# 下載專案
+git clone https://github.com/BingHongLi/hyperledger_event_lbh.git
+
+## 下載子專案
+cd hyperledger_event_lbh
+git submodule update --init --recursive
+
+# 複製合約進入環境內
+cp -r chaincode_event fabric-samples/chaincode/
+
+# 啟用環境
+cd fabric-samples/basic-network
+sh start.sh
+docker-composer up -d cli
+
+# 安裝與激活 invoke合約
+docker exec -e "CORE_PEER_LOCALMSPID=Org1MSP" -e "CORE_PEER_MSPCONFIGPATH=/opt/gopath/src/github.com/hyperledger/fabric/peer/crypto/peerOrganizations/org1.example.com/users/Admin@org1.example.com/msp" cli peer chaincode install -n chaincode_event -v 1.0 -p github.com/chaincode_event
+docker exec -e "CORE_PEER_LOCALMSPID=Org1MSP" -e "CORE_PEER_MSPCONFIGPATH=/opt/gopath/src/github.com/hyperledger/fabric/peer/crypto/peerOrganizations/org1.example.com/users/Admin@org1.example.com/msp" cli peer chaincode instantiate -o orderer.example.com:7050 -C mychannel -n chaincode_event -v 1.0 -c '{"Args":[""]}' -P "OR ('Org1MSP.member','Org2MSP.member')"
+
+# 調用合約，觀察event效果
+docker exec -e "CORE_PEER_LOCALMSPID=Org1MSP" -e "CORE_PEER_MSPCONFIGPATH=/opt/gopath/src/github.com/hyperledger/fabric/peer/crypto/peerOrganizations/org1.example.com/users/Admin@org1.example.com/msp" cli peer chaincode invoke -o orderer.example.com:7050 -C mychannel -n chaincode_event  -c '{"function":"set","Args":["4","20181111"]}'
+
+#
+docker exec -e "CORE_PEER_LOCALMSPID=Org1MSP" -e "CORE_PEER_MSPCONFIGPATH=/opt/gopath/src/github.com/hyperledger/fabric/peer/crypto/peerOrganizations/org1.example.com/users/Admin@org1.example.com/msp" cli peer chaincode invoke -o orderer.example.com:7050 -C mychannel -n chaincode_event  -c '{"function":"get","Args":["4"]}'
+
